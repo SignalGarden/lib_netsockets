@@ -1,0 +1,45 @@
+#include "socket.hh"
+
+#if defined (_MSC_VER)
+#include <winsock2.h>
+#endif
+
+#include <string>
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+
+///////////////////////////////////////////////////////////////////////////////////////
+//main
+///////////////////////////////////////////////////////////////////////////////////////
+
+int main(int argc, char *argv[])
+{
+  tcp_client_t client("127.0.0.1", 2000);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  //write
+  //end of message is "\r\n"
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  char buf[10];
+  sprintf(buf, "12345\r\n");
+  client.write(buf, strlen(buf));
+  std::cout << "client sent " << strlen(buf) << " bytes: " << buf;
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  //read
+  //end of message is "\r\n"
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  int recv_size;
+  recv_size = client.read(buf, sizeof(buf));
+
+  //strip extra charactes received (size is not known, detect end of message)
+  std::string str(buf);
+  size_t pos = str.find("\r\n");
+  std::string str_message(str.substr(0, pos + 2));
+  std::cout << "client received " << recv_size << " bytes: " << str_message;
+
+  return 0;
+}
