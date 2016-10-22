@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <netinet/in.h>
+#include <netdb.h> //hostent
 #endif
 
 #include <iostream>
@@ -57,11 +57,13 @@ void socket_t::write(const void *_buf, int size_buf)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-//socket_t::read
-//assumptions: total size to receive is not known
+//socket_t::read_some
+//assumptions: 
+//total size to receive is not known
+//other end did not close() connection, so not possible to check a zero return value of recv()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int socket_t::read(void *buf, int size_buf)
+int socket_t::read_some(void *buf, int size_buf)
 {
   int recv_size; // size in bytes received or -1 on error 
   const int flags = 0;
@@ -72,6 +74,82 @@ int socket_t::read(void *buf, int size_buf)
   }
 
   return recv_size;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+//socket_t::read_all
+//http://man7.org/linux/man-pages/man2/recv.2.html
+//recv() 'size_buf' bytes and save to local FILE
+//assumptions: 
+//total size to receive is not known
+//other end did a close() connection, so it is possible to check a zero return value of recv()
+//usage in HTTP
+///////////////////////////////////////////////////////////////////////////////////////
+
+int socket_t::read_all(const char *file_name, bool verbose)
+{
+  int recv_size; // size in bytes received or -1 on error 
+  int total_recv_size = 0;
+  const int flags = 0;
+  const int size_buf = 4096;
+  char buf[size_buf];
+  FILE *file;
+
+  file = fopen(file_name, "wb");
+  while (1)
+  {
+    if ((recv_size = recv(m_socket, buf, size_buf, flags)) == -1)
+    {
+      std::cout << "recv error: " << strerror(errno) << std::endl;
+    }
+    total_recv_size += recv_size;
+    if (recv_size == 0)
+    {
+      std::cout << "all bytes received " << std::endl;
+      break;
+    }
+    if (verbose)
+    {
+      for (int i = 0; i < recv_size; i++)
+      {
+        std::cout << buf[i];
+      }
+    }
+    fwrite(buf, recv_size, 1, file);
+  }
+  fclose(file);
+  return total_recv_size;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+//socket_t::hostname_to_ip
+//The getaddrinfo function provides protocol-independent translation from an ANSI host name to an address
+///////////////////////////////////////////////////////////////////////////////////////
+
+int socket_t::hostname_to_ip(const char *host_name, char *ip)
+{
+  struct addrinfo hints, *servinfo, *p;
+  struct sockaddr_in *h;
+  int rv;
+
+  memset(&hints, 0, sizeof hints);
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+
+  if ((rv = getaddrinfo(host_name, "http", &hints, &servinfo)) != 0)
+  {
+    return 1;
+  }
+
+  for (p = servinfo; p != NULL; p = p->ai_next)
+  {
+    h = (struct sockaddr_in *) p->ai_addr;
+    strcpy(ip, inet_ntoa(h->sin_addr));
+  }
+
+  freeaddrinfo(servinfo);
+  return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,8 +245,9 @@ socket_t tcp_server_t::accept_client()
 //tcp_client_t::tcp_client_t
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-tcp_client_t::tcp_client_t(const char *server_ip, const unsigned short server_port)
-  : socket_t(-1)
+tcp_client_t::tcp_client_t(const char *host_name, const unsigned short server_port)
+  : socket_t(-1),
+  m_server_port(server_port)
 {
 #if defined (_MSC_VER)
   WSADATA ws_data;
@@ -178,6 +257,21 @@ tcp_client_t::tcp_client_t(const char *server_ip, const unsigned short server_po
   }
 #endif
 
+  char server_ip[100];
+
+  //get ip address from hostname
+  hostname_to_ip(host_name, server_ip);
+
+  //store
+  m_server_ip = server_ip;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//tcp_client_t::open
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void tcp_client_t::open()
+{
   struct sockaddr_in server_addr; // server address
 
   // create a stream socket using TCP
@@ -188,17 +282,16 @@ tcp_client_t::tcp_client_t(const char *server_ip, const unsigned short server_po
   }
 
   // construct the server address structure
-  memset(&server_addr, 0, sizeof(server_addr));          // zero out structure
-  server_addr.sin_family = AF_INET;                      // internet address family
-  server_addr.sin_addr.s_addr = inet_addr(server_ip);    // server IP address
-  server_addr.sin_port = htons(server_port);             // server port
+  memset(&server_addr, 0, sizeof(server_addr)); // zero out structure
+  server_addr.sin_family = AF_INET; // internet address family
+  server_addr.sin_addr.s_addr = inet_addr(m_server_ip.c_str()); // server IP address
+  server_addr.sin_port = htons(m_server_port); // server port
 
   // establish the connection to the server
   if (connect(m_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
   {
     std::cout << "connect error: " << std::endl;
   }
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////

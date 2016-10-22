@@ -1,13 +1,8 @@
-#include "socket.hh"
-
-#if defined (_MSC_VER)
-#include <winsock2.h>
-#endif
-
 #include <string>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
+#include "socket.hh"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //main
@@ -38,7 +33,7 @@ void handle_client(socket_t& socket)
 {
   char buf[255];
   int recv_size;
-  recv_size = socket.read(buf, sizeof(buf));
+  recv_size = socket.read_some(buf, sizeof(buf));
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //read

@@ -15,9 +15,11 @@ public:
   {
   };
 
-  void write(const void *buf, int size_buf);
-  int read(void *buf, int size_buf);
   void close();
+  void write(const void *buf, int size_buf);
+  int read_some(void *buf, int size_buf);
+  int read_all(const char *file_name, bool verbose);
+  int hostname_to_ip(const char *host_name, char *ip);
 
 protected:
   int m_socket; // socket descriptor 
@@ -42,8 +44,13 @@ public:
 class tcp_client_t : public socket_t
 {
 public:
-  tcp_client_t(const char *server_ip, const unsigned short server_port);
+  tcp_client_t(const char *host_name, const unsigned short server_port);
   ~tcp_client_t();
+  void open();
+
+protected:
+  std::string m_server_ip;
+  unsigned short m_server_port;
 };
 
 #endif
