@@ -358,7 +358,7 @@ void ftp_t::parse_PASV_response(const std::string &str_rsp, std::string &str_ser
   size_t pos = str_rsp.find('(');
   std::string  str_ip = str_rsp.substr(pos + 1);
   sscanf(str_ip.c_str(), "%u,%u,%u,%u,%u,%u", &h[0], &h[1], &h[2], &h[3], &p[0], &p[1]);
-  server_port = p[0] * 256 + p[1];
+  server_port = static_cast<unsigned short>(p[0] * 256 + p[1]);
   sprintf(server_ip, "%u.%u.%u.%u", h[0], h[1], h[2], h[3]);
   str_server_ip = server_ip;
 }

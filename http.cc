@@ -65,7 +65,7 @@ void http_t::get(const char *path_remote_file, bool verbose)
   std::cout << "get: " << buf_request << std::endl;
 
   //send request, using built in tcp_client_t socket
-  this->write((void *)buf_request, strlen(buf_request));
+  this->write(buf_request, strlen(buf_request));
 
   //parse headers
   this->parse_headers();

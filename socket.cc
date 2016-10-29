@@ -11,8 +11,10 @@
 #endif
 
 #include <iostream>
+#include <string>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "socket.hh"
 
 const int MAXPENDING = 5; // maximum outstanding connection requests
@@ -36,7 +38,7 @@ void socket_t::close()
 
 void socket_t::write(const void *_buf, int size_buf)
 {
-  const char *buf = (char*)_buf;	// can't do pointer arithmetic on void* 
+  const char *buf = (char*)_buf; // can't do pointer arithmetic on void* 
   int send_size; // size in bytes sent or -1 on error 
   size_t size_left; // size in bytes left to send 
   const int flags = 0;
@@ -122,6 +124,36 @@ int socket_t::read_all(const char *file_name, bool verbose)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+//socket_t::read_all
+//assumptions: 
+//total size to receive is known, size_buf
+///////////////////////////////////////////////////////////////////////////////////////
+
+std::string socket_t::read_all(size_t size_read)
+{
+  const int size_buf = 4096;
+  char buf[4096];
+  int recv_size; // size in bytes received or -1 on error 
+  size_t size_left; // size in bytes left to receive 
+  const int flags = 0;
+
+  size_left = size_read;
+
+  std::string str;
+  while (size_left > 0)
+  {
+    if ((recv_size = recv(m_socket, buf, size_buf, flags)) == -1)
+    {
+      std::cout << "recv error: " << strerror(errno) << std::endl;
+    }
+    size_left -= recv_size;
+    str += std::string(buf);
+  }
+
+  return str;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 //socket_t::hostname_to_ip
 //The getaddrinfo function provides protocol-independent translation from an ANSI host name to an address
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -153,11 +185,77 @@ int socket_t::hostname_to_ip(const char *host_name, char *ip)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+//socket_t::write
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+size_t socket_t::write(json_t *json)
+{
+  char *buf_json = NULL;
+  std::string buf_send;
+  size_t size_json;
+
+  //get char* from json_t
+  buf_json = json_dumps(json, JSON_PRESERVE_ORDER);
+  size_json = strlen(buf_json);
+  //construct send buffer, adding a header with size in bytes of JSON and # terminator
+  buf_send = std::to_string(size_json);
+  buf_send += "#";
+  buf_send += std::string(buf_json);
+
+  this->write(buf_send.data(), buf_send.size());
+
+  free(buf_json);
+  return buf_send.size();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//json_socket_t::read
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+json_t * socket_t::read()
+{
+  int recv_size; // size in bytes received or -1 on error 
+  const int size_buf = 20;
+  char buf[size_buf];
+
+  //peek header
+  if ((recv_size = recv(m_socket, buf, size_buf, MSG_PEEK)) == -1)
+  {
+    std::cout << "recv error: " << strerror(errno) << std::endl;
+  }
+
+  //get size of JSON message
+  std::string str(buf);
+  size_t pos = str.find("#");
+  std::string str_header(str.substr(0, pos));
+
+  //parse header
+  if ((recv_size = recv(m_socket, buf, str_header.size() + 1, 0)) == -1)
+  {
+    std::cout << "recv error: " << strerror(errno) << std::endl;
+  }
+
+  //sanity check
+  buf[recv_size - 1] = '\0';
+  assert(str_header.compare(buf) == 0);
+
+  size_t size_json = static_cast<size_t>(std::stoull(str_header));
+  std::string str_buf = read_all(size_json);
+  //terminate buffer with size
+  std::string str_json = str_buf.substr(0, size_json);
+
+  //construct JSON
+  json_error_t *err = NULL;
+  json_t *json = json_loadb(str_json.data(), str_json.size(), JSON_PRESERVE_ORDER, err);
+  return json;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 //tcp_server_t::tcp_server_t
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 tcp_server_t::tcp_server_t(const unsigned short server_port)
-  : socket_t(-1)
+  : socket_t()
 {
 #if defined (_MSC_VER)
   WSADATA ws_data;
@@ -246,7 +344,7 @@ socket_t tcp_server_t::accept_client()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 tcp_client_t::tcp_client_t(const char *host_name, const unsigned short server_port)
-  : socket_t(-1),
+  : socket_t(),
   m_server_port(server_port)
 {
 #if defined (_MSC_VER)
@@ -304,3 +402,7 @@ tcp_client_t::~tcp_client_t()
   WSACleanup();
 #endif
 }
+
+
+
+

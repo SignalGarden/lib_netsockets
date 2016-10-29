@@ -2,6 +2,12 @@
 # make -f makefile
 # make -f makefile clean
 
+dir_inc_jansson = /usr/include
+dir_lib_jansson = /usr/lib/
+
+INC = -I$(dir_inc_jansson)
+LIB = -L$(dir_lib_jansson) -ljansson
+
 dir_bin = .
 
 SRC1 = socket.cc

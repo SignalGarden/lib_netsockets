@@ -1,6 +1,10 @@
 #ifndef LIB_SOCKET_H
 #define LIB_SOCKET_H
 
+#include <string>
+#include <jansson.h>
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //socket_t
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -8,6 +12,9 @@
 class socket_t
 {
 public:
+  socket_t() : m_socket(-1)
+  {
+  };
   socket_t(int socket) : m_socket(socket)
   {
   };
@@ -19,7 +26,12 @@ public:
   void write(const void *buf, int size_buf);
   int read_some(void *buf, int size_buf);
   int read_all(const char *file_name, bool verbose);
+  std::string read_all(size_t size_read);
   int hostname_to_ip(const char *host_name, char *ip);
+
+  //JSON functions
+  size_t write(json_t *json);
+  json_t * read();
 
 protected:
   int m_socket; // socket descriptor 
