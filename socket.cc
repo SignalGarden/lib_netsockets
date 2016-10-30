@@ -11,6 +11,7 @@
 #endif
 
 #include <iostream>
+#include <cerrno>
 #include <string>
 #include <stdio.h>
 #include <string.h>
