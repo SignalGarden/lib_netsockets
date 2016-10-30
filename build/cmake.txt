@@ -1,0 +1,3 @@
+cmake .. -DSTATIC_CRT:BOOL=ON \
+-DJANSSON_INCLUDE:PATH=/M/star_icvs/external/jansson-2.7/src \
+-DJANSSON_LIBRARY=/M/star_icvs/external/jansson-2.7/build/lib/Debug/jansson_d.lib
