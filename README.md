@@ -94,5 +94,50 @@ ftp.get_file(ftp.m_file_nslt.at(0).c_str());
 ftp.logout();
 </pre>
 
+#JSON messages
+JSON message requests are made using the jansson JSON library. An example that defines a JSON object defined as 
+
+<pre class="json">
+<code>
+{"start_year": 2016}
+</code>
+</pre>
+is
+<pre class="cpp">
+<code>
+json_t *request = json_object();
+json_object_set_new(request, "start_year", json_integer(2016));
+</code>
+</pre>
+The connection and message transmission to the server is made with
+<pre class="cpp">
+<code>
+client.open();
+client.write(request);
+</code>
+</pre>
+
+The server handles the client request in the function handle_client(), that uses the socket_t class read() function
+to parse the JSON message. In this case, the object with JSON key "start_year" is obtained, then a JSON response
+is made with and object with key "next_year", that is written to the socket, using the socket_t class write()
+<pre class="cpp">
+<code>
+void handle_client(socket_t& socket_client)
+{
+  json_t *response = NULL;
+  json_t *request = socket_client.read();
+
+  //get dates
+  json_t *json_obj;
+  json_obj = json_object_get(request, "start_year");
+  json_int_t start_year = json_integer_value(json_obj);
+  std::cout << "server received: " << std::endl;
+  std::cout << "start_year: " << start_year << std::endl;
+
+  //do response
+  response = json_object();
+  json_object_set_new(response, "next_year", json_integer(start_year + 1));
+  socket_client.write(response);
+}
 
 
