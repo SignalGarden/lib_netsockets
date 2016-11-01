@@ -1,3 +1,4 @@
 cmake .. -DSTATIC_CRT:BOOL=ON \
 -DJANSSON_INCLUDE:PATH=/M/star_icvs/external/jansson-2.7/src \
 -DJANSSON_LIBRARY=/M/star_icvs/external/jansson-2.7/build/lib/Debug/jansson_d.lib
+cmake .. -DJANSSON_INCLUDE:PATH=/data/data127/pvicente/install/jansson-2.7/include -DJANSSON_LIBRARY=/data/data127/pvicente/install/jansson-2.7/lib/libjansson.a -DHDF5_INCLUDE:PATH=/data/starfs1/libs/hdf5-1.8.7-linux-x86_64-static/include -DHDF5_LIBRARY=/data/starfs1/libs/hdf5-1.8.7-linux-x86_64-static/lib/libhdf5.a -DSZIP_LIBRARY=/data/starfs1/libs/hdf-4.2.6-linux-x86_64/lib/libsz.a -DZLIB_LIBRARY=/data/starfs1/libs/hdf5-1.8.7-linux-x86_64-static/lib/libz.a

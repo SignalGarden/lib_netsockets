@@ -199,7 +199,7 @@ size_t socket_t::write(json_t *json)
   buf_json = json_dumps(json, JSON_PRESERVE_ORDER);
   size_json = strlen(buf_json);
   //construct send buffer, adding a header with size in bytes of JSON and # terminator
-  buf_send = std::to_string(size_json);
+  buf_send = std::to_string(static_cast<long long unsigned int>(size_json));
   buf_send += "#";
   buf_send += std::string(buf_json);
 
