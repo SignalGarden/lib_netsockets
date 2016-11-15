@@ -334,7 +334,7 @@ socket_t tcp_server_t::accept_client()
 
   // convert IP addresses from a dots-and-number string to a struct in_addr and back
   char *str_ip = inet_ntoa(client_addr.sin_addr);
-  std::cout << "handling client " << str_ip << std::endl;
+  std::cout << "server accepted client " << str_ip << std::endl;
 
   socket_t socket(client_socket);
   return socket;

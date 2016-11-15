@@ -1,13 +1,17 @@
+#options
+#JANSSON_INCLUDE
+#JANSSON_LIBRARY
+
 cmake_minimum_required(VERSION 2.8)
 project (lib_netsockets)
 include(CheckCXXCompilerFlag)
 set(BUILD_SHARED_LIBRARIES OFF)
 
-find_path(JANSSON_INCLUDE jansson.h HINTS "/usr/include")
-if(NOT JANSSON_INCLUDE)
+find_path(JANSSON_INCLUDE_FOUND jansson.h HINTS ${JANSSON_INCLUDE} "/usr/include")
+if(NOT JANSSON_INCLUDE_FOUND)
   message(FATAL_ERROR "jansson.h header file not found")
 else()
-  message("-- Found jansson.h header file at: " ${JANSSON_INCLUDE}/jansson.h)
+  message("-- Found jansson.h header file at: " ${JANSSON_INCLUDE_FOUND})
 endif()
 
 find_library(JANSSON_LIBRARY NAMES jansson)
@@ -45,7 +49,7 @@ else ()
   set (CMAKE_CXX_STANDARD 11)
 endif()
 
-include_directories(${JANSSON_INCLUDE})
+include_directories(${JANSSON_INCLUDE_FOUND})
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${JANSSON_LIBRARY})
 set(SOURCES socket.cc http.cc ftp.cc socket.hh http.hh ftp.hh)
 add_executable(tcp_client_01 tcp_client_01.cc ${SOURCES})

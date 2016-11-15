@@ -53,8 +53,13 @@ If the Jansson library is not found, it can be set with
 cmake .. -DJANSSON_INCLUDE:PATH=/your/jansson/include/path -DJANSSON_LIBRARY=/your/jansson/library/file/name
 </pre>
 
+For a Windows Visual Studio build a statically build runtime library can be set with. 
+<pre>
+cmake .. -DSTATIC_CRT:BOOL=ON
+</pre>
 
-# usage
+
+#Usage
 lib_netsockets is C++ light wrapper for POSIX and Winsock sockets with implementation of TCP client/server using JSON messages,and HTTP, FTP clients.
 
 #TCP server example
@@ -140,3 +145,6 @@ json_obj = json_object_get(response, "next_year");
 json_int_t next_year = json_integer_value(json_obj);
 client.close();
 ```
+
+Test JSON client / server
+------------
