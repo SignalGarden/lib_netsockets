@@ -6,6 +6,8 @@
 #include <jansson.h>
 #include "socket.hh"
 
+const unsigned short port = 2000;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //main
 //TCP client that writes and reads JSON messages 
@@ -13,13 +15,33 @@
 
 int main(int argc, char *argv[])
 {
+  char buf_server[255]; // file name with list of HDF5 files to read
+
+  if (argc < 3)
+  {
+    std::cout << "usage: ./json_client -s <star server IP address/host name>" << std::endl;
+    return 1;
+  }
+
+  for (int i = 1; i < argc && argv[i][0] == '-'; i++)
+  {
+    switch (argv[i][1])
+    {
+    case 's':
+      strcpy(buf_server, argv[i + 1]);
+      i++;
+      break;
+    }
+  }
+
+
   //make JSON
   json_t *request = json_object();
   json_object_set_new(request, "start_year", json_integer(2016));
 
-  json_dump_file(request, "request.json", JSON_PRESERVE_ORDER);
+  json_dump_file(request, "request.json", JSON_INDENT(2));
 
-  tcp_client_t client("127.0.0.1", 2000);
+  tcp_client_t client(buf_server, port);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //create socket and open connection
@@ -33,18 +55,22 @@ int main(int argc, char *argv[])
 
   client.write(request);
 
+  std::cout << "client sent request to " << buf_server << ":" << port << std::endl;
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //read response
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
   json_t *response = client.read();
 
+  json_dump_file(response, "response.json", JSON_INDENT(2));
+
+  std::cout << "client received: " << std::endl;
+
   //parse JSON
   json_t *json_obj;
   json_obj = json_object_get(response, "next_year");
-  json_int_t next_year = json_integer_value(json_obj);
-  std::cout << "client received: " << std::endl;
-  std::cout << "next_year: " << next_year << std::endl;
+
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //close connection

@@ -386,10 +386,13 @@ void tcp_client_t::open()
   server_addr.sin_addr.s_addr = inet_addr(m_server_ip.c_str()); // server IP address
   server_addr.sin_port = htons(m_server_port); // server port
 
+  std::cout << "connecting to " << m_server_ip.c_str() << " ..." << std::endl;
+
   // establish the connection to the server
   if (connect(m_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
   {
-    std::cout << "connect error: " << std::endl;
+    std::cout << "connect error: " << strerror(errno) << std::endl;
+    exit(1);
   }
 }
 
