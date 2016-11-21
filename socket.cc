@@ -148,6 +148,8 @@ std::string socket_t::read_all(size_t size_read)
       std::cout << "recv error: " << strerror(errno) << std::endl;
     }
     size_left -= recv_size;
+    //terminate buffer with received size
+    buf[recv_size] = '\0';
     str += std::string(buf);
   }
 
