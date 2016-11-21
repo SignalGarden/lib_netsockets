@@ -6,7 +6,7 @@
 #include <assert.h>
 #include "socket.hh"
 
-const unsigned short port = 2000;
+const unsigned short port = 2001;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //main

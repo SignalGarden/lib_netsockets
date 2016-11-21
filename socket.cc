@@ -196,7 +196,7 @@ size_t socket_t::write(json_t *json)
   size_t size_json;
 
   //get char* from json_t
-  buf_json = json_dumps(json, JSON_PRESERVE_ORDER);
+  buf_json = json_dumps(json, JSON_PRESERVE_ORDER & JSON_COMPACT);
   size_json = strlen(buf_json);
   //construct send buffer, adding a header with size in bytes of JSON and # terminator
   buf_send = std::to_string(static_cast<long long unsigned int>(size_json));
@@ -218,36 +218,69 @@ json_t * socket_t::read()
   int recv_size; // size in bytes received or -1 on error 
   const int size_buf = 20;
   char buf[size_buf];
+  size_t size_json = 0; //in bytes
+  size_t size_header = 0; //in bytes
+  std::string str_header;
 
   //peek header
-  if ((recv_size = recv(m_socket, buf, size_buf, MSG_PEEK)) == -1)
+  while (1)
   {
-    std::cout << "recv error: " << strerror(errno) << std::endl;
+    if ((recv_size = recv(m_socket, buf, size_buf, MSG_PEEK)) == -1)
+    {
+      std::cout << "recv error: " << strerror(errno) << std::endl;
+    }
+
+    //get size of JSON message
+    std::string str(buf);
+    size_t pos = str.find("#");
+
+    //found, exit loop
+    if (std::string::npos != pos)
+    {
+      size_header = pos + 1;
+      str_header = str.substr(0, pos);
+      //get size
+      size_json = static_cast<size_t>(std::stoull(str_header));
+      break;
+    }
+
   }
 
-  //get size of JSON message
-  std::string str(buf);
-  size_t pos = str.find("#");
-  std::string str_header(str.substr(0, pos));
-
-  //parse header
-  if ((recv_size = recv(m_socket, buf, str_header.size() + 1, 0)) == -1)
+  //parse header, size is known
+  while (1)
   {
-    std::cout << "recv error: " << strerror(errno) << std::endl;
+    if ((recv_size = recv(m_socket, buf, size_header, 0)) == -1)
+    {
+      std::cout << "recv error: " << strerror(errno) << std::endl;
+    }
+
+    //get size of JSON message
+    std::string str(buf);
+    size_t pos = str.find("#");
+
+    //found, exit loop
+    if (std::string::npos != pos)
+    {
+      size_header = pos + 1;
+      str_header = str.substr(0, pos);
+      //get size
+      size_json = static_cast<size_t>(std::stoull(str_header));
+      break;
+    }
   }
 
   //sanity check
   buf[recv_size - 1] = '\0';
   assert(str_header.compare(buf) == 0);
 
-  size_t size_json = static_cast<size_t>(std::stoull(str_header));
-  std::string str_buf = read_all(size_json);
-  //terminate buffer with size
-  std::string str_json = str_buf.substr(0, size_json);
+  std::cout << "JSON size: " << str_header << " bytes" << std::endl;
 
-  //construct JSON
+  //read from socket
+  std::string str_json = read_all(size_json);
+
+  //construct and return JSON (c_str() is NULL terminated, JSON_DISABLE_EOF_CHECK must be set)
   json_error_t *err = NULL;
-  json_t *json = json_loadb(str_json.data(), str_json.size(), JSON_PRESERVE_ORDER, err);
+  json_t *json = json_loads(str_json.c_str(), JSON_DISABLE_EOF_CHECK, err);
   return json;
 }
 
@@ -334,7 +367,7 @@ socket_t tcp_server_t::accept_client()
 
   // convert IP addresses from a dots-and-number string to a struct in_addr and back
   char *str_ip = inet_ntoa(client_addr.sin_addr);
-  std::cout << "server accepted client " << str_ip << std::endl;
+  std::cout << "server accepted client: " << str_ip << std::endl;
 
   socket_t socket(client_socket);
   return socket;
@@ -385,8 +418,6 @@ void tcp_client_t::open()
   server_addr.sin_family = AF_INET; // internet address family
   server_addr.sin_addr.s_addr = inet_addr(m_server_ip.c_str()); // server IP address
   server_addr.sin_port = htons(m_server_port); // server port
-
-  std::cout << "connecting to " << m_server_ip.c_str() << " ..." << std::endl;
 
   // establish the connection to the server
   if (connect(m_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
