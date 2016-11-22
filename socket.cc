@@ -127,7 +127,7 @@ int socket_t::read_all(const char *file_name, bool verbose)
 ///////////////////////////////////////////////////////////////////////////////////////
 //socket_t::read_all
 //assumptions: 
-//total size to receive is known, size_buf
+//total size to receive is known, size_read
 ///////////////////////////////////////////////////////////////////////////////////////
 
 std::string socket_t::read_all(size_t size_read)
@@ -150,6 +150,7 @@ std::string socket_t::read_all(size_t size_read)
     size_left -= recv_size;
     //terminate buffer with received size
     buf[recv_size] = '\0';
+    //export buffer
     str += std::string(buf);
   }
 
