@@ -21,15 +21,42 @@
 const int MAXPENDING = 5; // maximum outstanding connection requests
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+//socket_t::socket_t()
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+socket_t::socket_t() : m_socket_fd(-1)
+{
+  memset(&m_sockaddr_in, 0, sizeof(m_sockaddr_in));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//socket_t::socket_t()
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+socket_t::socket_t(int socket_fd, sockaddr_in sock_addr) :
+  m_socket_fd(socket_fd),
+  m_sockaddr_in(sock_addr)
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//socket_t::~socket_t()
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+socket_t::~socket_t()
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 //socket_t::close()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void socket_t::close()
 {
 #if defined (_MSC_VER)
-  closesocket(m_socket);
+  closesocket(m_socket_fd);
 #else
-  ::close(m_socket);
+  ::close(m_socket_fd);
 #endif
 }
 
@@ -37,7 +64,7 @@ void socket_t::close()
 //socket_t::write
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void socket_t::write(const void *_buf, int size_buf)
+int socket_t::write(const void *_buf, int size_buf)
 {
   const char *buf = (char*)_buf; // can't do pointer arithmetic on void* 
   int send_size; // size in bytes sent or -1 on error 
@@ -48,15 +75,16 @@ void socket_t::write(const void *_buf, int size_buf)
 
   while (size_left > 0)
   {
-    if ((send_size = send(m_socket, buf, size_left, flags)) == -1)
+    if ((send_size = send(m_socket_fd, buf, size_left, flags)) == -1)
     {
       std::cout << "send error: " << strerror(errno) << std::endl;
+      return -1;
     }
     size_left -= send_size;
     buf += send_size;
   }
 
-  return;
+  return 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +99,7 @@ int socket_t::read_some(void *buf, int size_buf)
   int recv_size; // size in bytes received or -1 on error 
   const int flags = 0;
 
-  if ((recv_size = recv(m_socket, static_cast<char *>(buf), size_buf, flags)) == -1)
+  if ((recv_size = recv(m_socket_fd, static_cast<char *>(buf), size_buf, flags)) == -1)
   {
     std::cout << "recv error: " << strerror(errno) << std::endl;
   }
@@ -80,7 +108,7 @@ int socket_t::read_some(void *buf, int size_buf)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//socket_t::read_all
+//socket_t::read_all_get_close
 //http://man7.org/linux/man-pages/man2/recv.2.html
 //recv() 'size_buf' bytes and save to local FILE
 //assumptions: 
@@ -89,7 +117,7 @@ int socket_t::read_some(void *buf, int size_buf)
 //usage in HTTP
 ///////////////////////////////////////////////////////////////////////////////////////
 
-int socket_t::read_all(const char *file_name, bool verbose)
+int socket_t::read_all_get_close(const char *file_name, bool verbose)
 {
   int recv_size; // size in bytes received or -1 on error 
   int total_recv_size = 0;
@@ -101,7 +129,7 @@ int socket_t::read_all(const char *file_name, bool verbose)
   file = fopen(file_name, "wb");
   while (1)
   {
-    if ((recv_size = recv(m_socket, buf, size_buf, flags)) == -1)
+    if ((recv_size = recv(m_socket_fd, buf, size_buf, flags)) == -1)
     {
       std::cout << "recv error: " << strerror(errno) << std::endl;
     }
@@ -125,36 +153,38 @@ int socket_t::read_all(const char *file_name, bool verbose)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//socket_t::read_all
+//socket_t::read_all_known_size
 //assumptions: 
 //total size to receive is known, size_read
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::string socket_t::read_all(size_t size_read)
+std::string socket_t::read_all_known_size(size_t size_read)
 {
-  const int size_buf = 4096;
-  char buf[4096];
+  const int size_buf = size_read;
+  char *buf = new char[size_buf];
   int recv_size; // size in bytes received or -1 on error 
   size_t size_left; // size in bytes left to receive 
   const int flags = 0;
 
   size_left = size_read;
 
-  std::string str;
+  std::string str_ret;
   while (size_left > 0)
   {
-    if ((recv_size = recv(m_socket, buf, size_buf, flags)) == -1)
+    if ((recv_size = recv(m_socket_fd, buf, size_buf, flags)) == -1)
     {
       std::cout << "recv error: " << strerror(errno) << std::endl;
     }
     size_left -= recv_size;
+    std::string str(buf);
     //terminate buffer with received size
-    buf[recv_size] = '\0';
+    str.resize(recv_size);
     //export buffer
-    str += std::string(buf);
+    str_ret += str;
   }
 
-  return str;
+  delete[] buf;
+  return str_ret;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -192,7 +222,7 @@ int socket_t::hostname_to_ip(const char *host_name, char *ip)
 //socket_t::write
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t socket_t::write(json_t *json)
+int socket_t::write(json_t *json)
 {
   char *buf_json = NULL;
   std::string buf_send;
@@ -201,15 +231,13 @@ size_t socket_t::write(json_t *json)
   //get char* from json_t
   buf_json = json_dumps(json, JSON_PRESERVE_ORDER & JSON_COMPACT);
   size_json = strlen(buf_json);
+
   //construct send buffer, adding a header with size in bytes of JSON and # terminator
   buf_send = std::to_string(static_cast<long long unsigned int>(size_json));
   buf_send += "#";
   buf_send += std::string(buf_json);
-
-  this->write(buf_send.data(), buf_send.size());
-
   free(buf_json);
-  return buf_send.size();
+  return (this->write(buf_send.data(), buf_send.size()));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,67 +247,32 @@ size_t socket_t::write(json_t *json)
 json_t * socket_t::read()
 {
   int recv_size; // size in bytes received or -1 on error 
-  const int size_buf = 20;
-  char buf[size_buf];
   size_t size_json = 0; //in bytes
-  size_t size_header = 0; //in bytes
   std::string str_header;
 
-  //peek header
-  while (1)
+  //parse header, one character at a time and look for for separator #, assume size header lenght less than 20 digits
+  for (size_t idx = 0; idx < 20; idx++)
   {
-    if ((recv_size = recv(m_socket, buf, size_buf, MSG_PEEK)) == -1)
+    char c;
+    if ((recv_size = recv(m_socket_fd, &c, 1, 0)) == -1)
     {
       std::cout << "recv error: " << strerror(errno) << std::endl;
     }
-
-    //get size of JSON message
-    std::string str(buf);
-    size_t pos = str.find("#");
-
-    //found, exit loop
-    if (std::string::npos != pos)
+    if (c == '#')
     {
-      size_header = pos + 1;
-      str_header = str.substr(0, pos);
-      //get size
-      size_json = static_cast<size_t>(std::stoull(str_header));
       break;
     }
-
-  }
-
-  //parse header, size is known
-  while (1)
-  {
-    if ((recv_size = recv(m_socket, buf, size_header, 0)) == -1)
+    else
     {
-      std::cout << "recv error: " << strerror(errno) << std::endl;
-    }
-
-    //get size of JSON message
-    std::string str(buf);
-    size_t pos = str.find("#");
-
-    //found, exit loop
-    if (std::string::npos != pos)
-    {
-      size_header = pos + 1;
-      str_header = str.substr(0, pos);
-      //get size
-      size_json = static_cast<size_t>(std::stoull(str_header));
-      break;
+      str_header += c;
     }
   }
 
-  //sanity check
-  buf[recv_size - 1] = '\0';
-  assert(str_header.compare(buf) == 0);
+  //get size
+  size_json = static_cast<size_t>(std::stoull(str_header));
 
-  std::cout << "JSON size: " << str_header << " bytes" << std::endl;
-
-  //read from socket
-  std::string str_json = read_all(size_json);
+  //read from socket with known size
+  std::string str_json = read_all_known_size(size_json);
 
   //construct and return JSON (c_str() is NULL terminated, JSON_DISABLE_EOF_CHECK must be set)
   json_error_t *err = NULL;
@@ -304,7 +297,7 @@ tcp_server_t::tcp_server_t(const unsigned short server_port)
   sockaddr_in server_addr; // local address
 
   // create TCP socket for incoming connections
-  if ((m_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+  if ((m_socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
   {
     std::cout << "socket error: " << std::endl;
     exit(1);
@@ -317,7 +310,7 @@ tcp_server_t::tcp_server_t(const unsigned short server_port)
   server_addr.sin_port = htons(server_port);        // local port
 
   // bind to the local address
-  if (bind(m_socket, (sockaddr*)&server_addr, sizeof(server_addr)) < 0)
+  if (bind(m_socket_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0)
   {
     //bind error: Permission denied
     //probably trying to bind a port under 1024. These ports usually require root privileges to be bound.
@@ -326,7 +319,7 @@ tcp_server_t::tcp_server_t(const unsigned short server_port)
   }
 
   // mark the socket so it will listen for incoming connections
-  if (listen(m_socket, MAXPENDING) < 0)
+  if (listen(m_socket_fd, MAXPENDING) < 0)
   {
     std::cout << "listen error: " << std::endl;
     exit(1);
@@ -351,8 +344,8 @@ tcp_server_t::~tcp_server_t()
 
 socket_t tcp_server_t::accept_client()
 {
-  int client_socket; // socket descriptor for client
-  sockaddr_in client_addr; // client address
+  int socket_client_fd; // socket descriptor for client
+  sockaddr_in addr_client; // client address
 #if defined (_MSC_VER)
   int len_addr; // length of client address data structure
 #else
@@ -360,19 +353,15 @@ socket_t tcp_server_t::accept_client()
 #endif
 
   // set length of client address structure (in-out parameter)
-  len_addr = sizeof(client_addr);
+  len_addr = sizeof(addr_client);
 
   // wait for a client to connect
-  if ((client_socket = accept(m_socket, (struct sockaddr *) &client_addr, &len_addr)) < 0)
+  if ((socket_client_fd = accept(m_socket_fd, (struct sockaddr *) &addr_client, &len_addr)) < 0)
   {
     std::cout << "accept error " << std::endl;
   }
 
-  // convert IP addresses from a dots-and-number string to a struct in_addr and back
-  char *str_ip = inet_ntoa(client_addr.sin_addr);
-  std::cout << "server accepted client: " << str_ip << std::endl;
-
-  socket_t socket(client_socket);
+  socket_t socket(socket_client_fd, addr_client);
   return socket;
 }
 
@@ -405,29 +394,34 @@ tcp_client_t::tcp_client_t(const char *host_name, const unsigned short server_po
 //tcp_client_t::open
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void tcp_client_t::open()
+int tcp_client_t::open()
 {
   struct sockaddr_in server_addr; // server address
 
   // create a stream socket using TCP
-  if ((m_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+  if ((m_socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
   {
     std::cout << "socket error: " << std::endl;
-    exit(1);
+    return -1;
   }
 
   // construct the server address structure
   memset(&server_addr, 0, sizeof(server_addr)); // zero out structure
   server_addr.sin_family = AF_INET; // internet address family
-  server_addr.sin_addr.s_addr = inet_addr(m_server_ip.c_str()); // server IP address
+  if (inet_pton(AF_INET, m_server_ip.c_str(), &server_addr.sin_addr) <= 0) // server IP address
+  {
+    std::cout << "inet_pton error: " << strerror(errno) << std::endl;
+    exit(1);
+  }
   server_addr.sin_port = htons(m_server_port); // server port
 
   // establish the connection to the server
-  if (connect(m_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+  if (connect(m_socket_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
   {
     std::cout << "connect error: " << strerror(errno) << std::endl;
-    exit(1);
+    return -1;
   }
+  return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////

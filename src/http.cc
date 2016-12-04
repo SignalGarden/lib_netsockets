@@ -75,7 +75,7 @@ void http_t::get(const char *path_remote_file, bool verbose)
 
   //we sent a close() server request, so we can use the read_all function
   //that checks for recv() return value of zero (connection closed)
-  this->read_all(str_file_name.c_str(), verbose);
+  this->read_all_get_close(str_file_name.c_str(), verbose);
 
   //close connection
   this->close();
@@ -94,7 +94,7 @@ void http_t::parse_headers()
   const int size_buf = 4096;
   char buf[size_buf];
 
-  if ((recv_size = recv(m_socket, buf, size_buf, MSG_PEEK)) == -1)
+  if ((recv_size = recv(m_socket_fd, buf, size_buf, MSG_PEEK)) == -1)
   {
     std::cout << "recv error: " << strerror(errno) << std::endl;
   }
@@ -107,7 +107,7 @@ void http_t::parse_headers()
   std::cout << str_headers.c_str() << std::endl;
 
   //now get headers with the obtained size from socket
-  if ((recv_size = recv(m_socket, buf, m_header_len, 0)) == -1)
+  if ((recv_size = recv(m_socket_fd, buf, m_header_len, 0)) == -1)
   {
     std::cout << "recv error: " << strerror(errno) << std::endl;
   }

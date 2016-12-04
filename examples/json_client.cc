@@ -15,7 +15,10 @@ const unsigned short port = 2001;
 
 int main(int argc, char *argv[])
 {
-  char buf_server[255]; // file name with list of HDF5 files to read
+  char buf_server[255]; // server host name or IP
+  char response_name[255]; // add to response.json
+  char* buf = NULL;
+  std::string str_response;
 
   if (argc < 3)
   {
@@ -31,6 +34,11 @@ int main(int argc, char *argv[])
       strcpy(buf_server, argv[i + 1]);
       i++;
       break;
+    case 'f':
+      strcpy(response_name, argv[i + 1]);
+      str_response = response_name;
+      i++;
+      break;
     }
   }
 
@@ -39,23 +47,28 @@ int main(int argc, char *argv[])
   json_t *request = json_object();
   json_object_set_new(request, "start_year", json_integer(2016));
 
-  json_dump_file(request, "request.json", JSON_INDENT(2));
+  json_dump_file(request, "request.json", 0);
 
   tcp_client_t client(buf_server, port);
+  std::cout << "client connecting to: " << buf_server << ":" << port << std::endl;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //create socket and open connection
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
   client.open();
+  std::cout << "client connected to: " << buf_server << ":" << port << std::endl;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //write request
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
   client.write(request);
+  std::cout << "client sent: ";
 
-  std::cout << "client sent request to " << buf_server << ":" << port << std::endl;
+  buf = json_dumps(request, 0);
+  std::cout << buf << std::endl;
+  free(buf);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //read response
@@ -63,14 +76,19 @@ int main(int argc, char *argv[])
 
   json_t *response = client.read();
 
-  json_dump_file(response, "response.json", JSON_INDENT(2));
+  std::string str_response_name("response");
+  if (str_response.size())
+  {
+     str_response_name += str_response;
+  }
+  str_response_name += ".json";
+  json_dump_file(response, str_response_name.c_str(), 0);
 
-  std::cout << "client received: " << std::endl;
+  std::cout << "client received: ";
 
-  //parse JSON
-  json_t *json_obj;
-  json_obj = json_object_get(response, "next_year");
-
+  buf = json_dumps(response, 0);
+  std::cout << buf << std::endl;
+  free(buf);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //close connection

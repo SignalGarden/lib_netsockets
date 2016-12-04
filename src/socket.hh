@@ -1,9 +1,15 @@
 #ifndef LIB_SOCKET_H
 #define LIB_SOCKET_H
 
+#if defined (_MSC_VER)
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
 #include <string>
 #include <jansson.h>
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //socket_t
@@ -12,29 +18,23 @@
 class socket_t
 {
 public:
-  socket_t() : m_socket(-1)
-  {
-  };
-  socket_t(int socket) : m_socket(socket)
-  {
-  };
-  ~socket_t()
-  {
-  };
-
+  socket_t();
+  socket_t(int socket_fd, sockaddr_in sock_addr);
+  ~socket_t();
   void close();
-  void write(const void *buf, int size_buf);
+  int write(const void *buf, int size_buf);
   int read_some(void *buf, int size_buf);
-  int read_all(const char *file_name, bool verbose);
-  std::string read_all(size_t size_read);
+  int read_all_get_close(const char *file_name, bool verbose);
+  std::string read_all_known_size(size_t size_read);
   int hostname_to_ip(const char *host_name, char *ip);
 
   //JSON functions
-  size_t write(json_t *json);
+  int write(json_t *json);
   json_t * read();
 
-protected:
-  int m_socket; // socket descriptor 
+public:
+  int m_socket_fd; // socket descriptor 
+  sockaddr_in m_sockaddr_in; // client address (used to store return value of server accept())
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ class tcp_client_t : public socket_t
 public:
   tcp_client_t(const char *host_name, const unsigned short server_port);
   ~tcp_client_t();
-  void open();
+  int open();
 
 protected:
   std::string m_server_ip;
