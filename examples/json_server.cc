@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
       free(buf);
     }
 
-
     //get dates
     json_t *json_obj;
     json_obj = json_object_get(request, "start_year");
