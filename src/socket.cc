@@ -510,6 +510,44 @@ tcp_client_t::~tcp_client_t()
 #endif
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//socket_t::parse_http_headers
+//MSG_PEEK
+//Peeks at an incoming message.The data is treated as unread and the next recv() or similar 
+//function shall still return this data.
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int socket_t::parse_http_headers()
+{
+  int recv_size; // size in bytes received or -1 on error 
+  const int size_buf = 4096;
+  char buf[size_buf];
+
+  if ((recv_size = recv(m_socket_fd, buf, size_buf, MSG_PEEK)) == -1)
+  {
+    std::cout << "recv error: " << strerror(errno) << std::endl;
+    return -1;
+  }
+
+  std::string str(buf);
+  size_t pos = str.find("\r\n\r\n");
+  std::string str_headers(str.substr(0, pos + 4));
+  int header_len = static_cast<int>(pos + 4);
+
+  std::cout << str_headers.c_str() << std::endl;
+
+  //now get headers with the obtained size from socket
+  if ((recv_size = recv(m_socket_fd, buf, header_len, 0)) == -1)
+  {
+    std::cout << "recv error: " << strerror(errno) << std::endl;
+    return -1;
+  }
+
+  //sanity check
+  std::string str1(buf);
+  assert(str1 == str);
+  return 0;
+}
 
 
 

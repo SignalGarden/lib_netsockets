@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "socket.hh"
+#include "http.hh"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //main
@@ -12,7 +13,7 @@ void handle_client(socket_t& socket);
 
 int main(int argc, char *argv[])
 {
-  unsigned short port = 3000;
+  unsigned short port = http_port;
 
   for (int i = 1; i < argc && argv[i][0] == '-'; i++)
   {
@@ -30,6 +31,11 @@ int main(int argc, char *argv[])
   while (true)
   {
     socket_t socket = server.accept_client();
+
+    // convert IP addresses from a dots-and-number string to a struct in_addr
+    char *str_ip = inet_ntoa(socket.m_sockaddr_in.sin_addr);
+    std::cout << prt_time() << "server accepted: " << str_ip << "," << socket.m_socket_fd << std::endl;
+
     handle_client(socket);
     socket.close();
   }
@@ -43,8 +49,18 @@ int main(int argc, char *argv[])
 
 void handle_client(socket_t& socket)
 {
+  if (socket.parse_http_headers() < 0)
+  {
 
+  }
 
+  std::string str_response("HTTP/1.1 200 OK\r\n\r\n");
+  str_response += "<html><body><h1>Server</h1></body></html>";
+
+  if (socket.write(str_response.c_str(), str_response.size()) < 0)
+  {
+
+  }
 }
 
 

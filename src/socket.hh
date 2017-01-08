@@ -39,6 +39,9 @@ public:
   int write_json(json_t *json);
   json_t * read_json();
 
+  //HTTP
+  int parse_http_headers();
+
 public:
   int m_socket_fd; // socket descriptor 
   sockaddr_in m_sockaddr_in; // client address (used to store return value of server accept())

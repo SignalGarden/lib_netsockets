@@ -24,14 +24,10 @@ void usage()
 
 int main(int argc, char *argv[])
 {
-  const char *host_name = NULL; // server name 
-  const char *path_name = NULL; // name of file to retrieve
+  const char *host_name = "127.0.0.1"; // server name 
+  const char *path_name = "index.html"; // name of file to retrieve
+  unsigned short port = http_port;
   bool verbose = false;
-
-  if (argc < 5)
-  {
-    usage();
-  }
 
   for (int i = 1; i < argc; i++)
   {
@@ -50,6 +46,10 @@ int main(int argc, char *argv[])
         path_name = argv[i + 1];
         i++;
         break;
+      case 'p':
+        port = atoi(argv[i + 1]);
+        i++;
+        break;
       default:
         usage();
       }
@@ -60,8 +60,18 @@ int main(int argc, char *argv[])
     }
   }
 
-  http_t client(host_name, 80);
+  http_t client(host_name, port);
+
+  //open connection
+  if (client.open() < 0)
+  {
+
+  }
+
+  std::cout << "client connected to: " << host_name << ":" << port << std::endl;
+
   client.get(path_name, verbose);
+  client.close();
   return 0;
 }
 
