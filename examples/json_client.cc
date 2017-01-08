@@ -6,7 +6,7 @@
 #include <jansson.h>
 #include "socket.hh"
 
-const unsigned short port = 2001;
+unsigned short port = 2001;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //main
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
   if (argc < 3)
   {
-    std::cout << "usage: ./json_client -s <star server IP address/host name>" << std::endl;
+    std::cout << "usage: ./json_client -s <star server IP address/host name> -p <port>" << std::endl;
     return 1;
   }
 
@@ -32,6 +32,10 @@ int main(int argc, char *argv[])
     {
     case 's':
       strcpy(buf_server, argv[i + 1]);
+      i++;
+      break;
+    case 'p':
+      port = atoi(argv[i + 1]);
       i++;
       break;
     case 'f':
@@ -56,14 +60,29 @@ int main(int argc, char *argv[])
   //create socket and open connection
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  client.open();
+  if (client.open() < 0)
+  {
+    std::string  str = "connect error to: ";
+    str += buf_server;
+    std::cout << str << ":" << port << std::endl;
+    json_decref(request);
+    return 1;
+  }
   std::cout << "client connected to: " << buf_server << ":" << port << std::endl;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //write request
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  client.write(request);
+  if (client.write_json(request) < 0)
+  {
+    std::string  str = "send error to: ";
+    str += buf_server;
+    std::cout << str << ":" << port << std::endl;
+    json_decref(request);
+    return 1;
+  }
+
   std::cout << "client sent: ";
 
   buf = json_dumps(request, 0);
@@ -74,7 +93,16 @@ int main(int argc, char *argv[])
   //read response
   /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  json_t *response = client.read();
+  json_t *response = client.read_json();
+
+  if (NULL == response)
+  {
+    std::string  str = "recv error from: ";
+    str += buf_server;
+    std::cout << str << ":" << port << std::endl;
+    json_decref(request);
+    return 1;
+  }
 
   std::string str_response_name("response");
   if (str_response.size())

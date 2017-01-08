@@ -146,5 +146,3 @@ json_int_t next_year = json_integer_value(json_obj);
 client.close();
 ```
 
-Test JSON client / server
-------------

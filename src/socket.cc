@@ -15,10 +15,84 @@
 #include <string>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
+#include <stdio.h>
+#include <jansson.h>
 #include <assert.h>
+#include <time.h>
+#include <ctime>
 #include "socket.hh"
 
+#if defined (_MSC_VER)
+#else
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#include <syslog.h>
+#endif
+
 const int MAXPENDING = 5; // maximum outstanding connection requests
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//utils
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string prt_time()
+{
+  time_t t;
+  time(&t);
+  std::string str_time(std::ctime(&t));
+  str_time.resize(str_time.size() - 1); //remove \n
+  str_time += " ";
+  return str_time;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+//set_daemon
+///////////////////////////////////////////////////////////////////////////////////////
+
+int set_daemon(const char* str_dir)
+{
+#if defined (_MSC_VER)
+  std::cout << str_dir << std::endl;
+#else
+  pid_t pid, sid;
+  pid = fork();
+  if (pid < 0)
+  {
+    std::cout << "cannot create pid: " << pid << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  if (pid > 0)
+  {
+    std::cout << "created pid: " << pid << std::endl;
+    exit(EXIT_SUCCESS);
+  }
+
+  umask(0);
+
+  sid = setsid();
+  if (sid < 0)
+  {
+    std::cout << "cannot create sid: " << sid << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  if ((chdir(str_dir)) < 0)
+  {
+    std::cout << "cannot chdir to: " << str_dir << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  std::cout << "chdir to: " << str_dir << std::endl;
+
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+#endif
+  return 0;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //socket_t::socket_t()
@@ -219,10 +293,10 @@ int socket_t::hostname_to_ip(const char *host_name, char *ip)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-//socket_t::write
+//socket_t::write_json
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int socket_t::write(json_t *json)
+int socket_t::write_json(json_t *json)
 {
   char *buf_json = NULL;
   std::string buf_send;
@@ -241,10 +315,10 @@ int socket_t::write(json_t *json)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-//json_socket_t::read
+//json_socket_t::read_json
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-json_t * socket_t::read()
+json_t * socket_t::read_json()
 {
   int recv_size; // size in bytes received or -1 on error 
   size_t size_json = 0; //in bytes
@@ -257,6 +331,7 @@ json_t * socket_t::read()
     if ((recv_size = recv(m_socket_fd, &c, 1, 0)) == -1)
     {
       std::cout << "recv error: " << strerror(errno) << std::endl;
+      return NULL;
     }
     if (c == '#')
     {
@@ -269,7 +344,7 @@ json_t * socket_t::read()
   }
 
   //get size
-  size_json = static_cast<size_t>(std::stoull(str_header));
+  size_json = static_cast<size_t>(atoi(str_header.c_str()));
 
   //read from socket with known size
   std::string str_json = read_all_known_size(size_json);
@@ -411,7 +486,7 @@ int tcp_client_t::open()
   if (inet_pton(AF_INET, m_server_ip.c_str(), &server_addr.sin_addr) <= 0) // server IP address
   {
     std::cout << "inet_pton error: " << strerror(errno) << std::endl;
-    exit(1);
+    return -1;
   }
   server_addr.sin_port = htons(m_server_port); // server port
 
