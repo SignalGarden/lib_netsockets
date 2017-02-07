@@ -15,6 +15,11 @@
 #include <string>
 #include <stdio.h>
 #include <string.h>
+
+#if _ANDROID
+#include <sstream>
+#endif
+
 #include <iostream>
 #include <stdio.h>
 #include <jansson.h>
@@ -295,6 +300,18 @@ int socket_t::hostname_to_ip(const char *host_name, char *ip)
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //socket_t::write_json
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if _ANDROID
+namespace std
+{
+	template < typename T > std::string to_string(const T& n)
+	{
+		std::ostringstream stm;
+		stm << n;
+		return stm.str();
+	}
+}
+#endif
 
 int socket_t::write_json(json_t *json)
 {

@@ -17,6 +17,11 @@
 #include "socket.hh"
 #include "ftp.hh"
 
+#if _ANDROID
+#include <stdexcept>
+#include <cerrno>
+#endif
+
 //FTP uses two TCP connections to transfer files : a control connection and a data connection
 //connect a socket(control socket) to a ftp server on the port 21
 //receive on the socket a message from the ftp server(code : 220)
@@ -154,6 +159,35 @@ void ftp_t::get_file_list()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //ftp_t::get_file()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if _ANDROID
+
+namespace std
+{
+	unsigned long long stoull(const string& str, size_t* idx, int base)
+	{
+		char* ptr;
+		const char* const p = str.c_str();
+		unsigned long long r = strtoull(p, &ptr, base);
+		if(ptr == p)
+		{
+#ifndef _LIBCPP_NO_EXCEPTIONS
+			if(r == 0)
+				throw invalid_argument("stoull: no conversion");
+			throw out_of_range("stoull: out of range");
+#endif  // _LIBCPP_NO_EXCEPTIONS
+		}
+		if(idx)
+			*idx = static_cast<size_t>(ptr - p);
+		return r;
+	}
+
+	unsigned long long stoull(const string& str)
+	{
+		return stoull(str, 0, 10);
+	}
+}
+#endif
 
 void ftp_t::get_file(const char *file_name)
 {
