@@ -70,19 +70,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -98,7 +98,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
     </Lib>
@@ -116,7 +116,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
     </Lib>
@@ -138,7 +138,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
     </Lib>
@@ -160,7 +160,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Windows\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
     </Lib>

@@ -109,42 +109,42 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

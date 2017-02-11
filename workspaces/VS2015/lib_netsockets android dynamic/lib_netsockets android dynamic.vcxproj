@@ -100,35 +100,35 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <IntDir>$(ElectrolyteThirdPartyProjectsPath)\Intermediate\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
-    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\</OutDir>
+    <OutDir>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -142,7 +142,7 @@
     </ClCompile>
     <Link>
       <SharedLibrarySearchPath>%(SharedLibrarySearchPath);$(Sysroot)\usr\lib</SharedLibrarySearchPath>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\x86_64-linux-android\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform)\$(configuration);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\x86_64-linux-android\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <LibraryDependencies>m;jansson;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
@@ -160,7 +160,7 @@
     </ClCompile>
     <Link>
       <SharedLibrarySearchPath>%(SharedLibrarySearchPath);$(Sysroot)\usr\lib</SharedLibrarySearchPath>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\x86_64-linux-android\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform)\$(configuration);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\x86_64-linux-android\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <LibraryDependencies>m;jansson;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
@@ -178,7 +178,7 @@
     </ClCompile>
     <Link>
       <SharedLibrarySearchPath>%(SharedLibrarySearchPath);$(Sysroot)\usr\lib</SharedLibrarySearchPath>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\i686-linux-android\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform)\$(configuration);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\i686-linux-android\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <LibraryDependencies>m;jansson;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
@@ -196,7 +196,7 @@
     </ClCompile>
     <Link />
     <Link>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\i686-linux-android\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform)\$(configuration);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\i686-linux-android\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <LibraryDependencies>m;jansson;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
@@ -214,7 +214,7 @@
     </ClCompile>
     <Link>
       <SharedLibrarySearchPath>%(SharedLibrarySearchPath);$(Sysroot)\usr\lib</SharedLibrarySearchPath>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform)\$(configuration);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <LibraryDependencies>m;jansson;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
@@ -232,7 +232,7 @@
     </ClCompile>
     <Link>
       <SharedLibrarySearchPath>%(SharedLibrarySearchPath);$(Sysroot)\usr\lib</SharedLibrarySearchPath>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform)\$(configuration);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainVersion);$(StlLibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <LibraryDependencies>m;jansson;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
@@ -250,7 +250,7 @@
     </ClCompile>
     <Link>
       <SharedLibrarySearchPath>%(SharedLibrarySearchPath);$(Sysroot)\usr\lib</SharedLibrarySearchPath>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainVersion)\$(PlatformShortName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform)\$(configuration);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainVersion)\$(PlatformShortName);$(StlLibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <LibraryDependencies>m;jansson;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
@@ -268,7 +268,7 @@
     </ClCompile>
     <Link>
       <SharedLibrarySearchPath>%(SharedLibrarySearchPath);$(Sysroot)\usr\lib</SharedLibrarySearchPath>
-      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainVersion)\$(PlatformShortName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ElectrolyteThirdPartyProjectsPath)\lib\Android\$(platform)\$(configuration);%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainVersion)\$(PlatformShortName);$(StlLibraryPath)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <LibraryDependencies>m;jansson;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
